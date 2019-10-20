@@ -2,12 +2,15 @@
 package com.ss.lms.entity;
 
 import java.io.Serializable;
+import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -18,20 +21,23 @@ public class Borrower implements Serializable
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(updatable = false)
+	@Column(name = "cardNo", updatable = false)
 	private Integer cardNo;
+	
+	@Column(name = "name")
 	private String name;
+	
+	@Column(name = "address")
 	private String address;
+	
+	@Column(name = "phone")
 	private String phone;
+	
+	// ONE borrower may borrow MANY books
+	@OneToMany(mappedBy = "bookLoanKey.borrower")
+	private Collection<BookLoan> borrowedBooks;
 
 	public Borrower(){}
-	
-	public Borrower(String name, String address, String phone)
-	{
-		this.name = name;
-		this.address = address;
-		this.phone = phone;
-	}
 	
 	public Borrower(Integer cardNo, String name, String address, String phone)
 	{

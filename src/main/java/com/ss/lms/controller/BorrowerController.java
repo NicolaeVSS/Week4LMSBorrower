@@ -1,7 +1,13 @@
 package com.ss.lms.controller;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,10 +20,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ss.lms.entity.Book;
 import com.ss.lms.entity.BookCopy;
 import com.ss.lms.entity.BookCopyCompositeKey;
 import com.ss.lms.entity.BookLoan;
 import com.ss.lms.entity.BookLoanCompositeKey;
+import com.ss.lms.entity.Borrower;
 import com.ss.lms.entity.LibraryBranch;
 import com.ss.lms.service.BorrowerService;
 
@@ -38,28 +46,74 @@ public class BorrowerController {
 					consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity<BookLoan> createBookLoan(@RequestBody BookLoan bookloan){
 		
-		if(bookloan.getCardNo() == null || bookloan.getBookId() == null || bookloan.getBranchId() == null || 
-				bookloan.getDateOut() == null || bookloan.getDueDate() == null) {
+		Timestamp timestamp = new Timestamp(new Date().getTime());
+		Calendar duetime = Calendar.getInstance();
+		
+		if(bookloan.getBookLoanKey() == null || bookloan.getDateOut() != null || bookloan.getDueDate() != null) {
+			System.out.println("\n\n\n\n\n");
+			System.out.println();
+			System.out.println("\n\n\n\n\n");
 			return new ResponseEntity<BookLoan>(HttpStatus.BAD_REQUEST);
 		}
-		BookLoanCompositeKey loanKey = new BookLoanCompositeKey(bookloan.getBookId(), bookloan.getBranchId(), bookloan.getCardNo());
+		bookloan.setDateOut(timestamp);
+		duetime.add(Calendar.DAY_OF_MONTH, 7);
+		timestamp = new Timestamp(duetime.getTime().getTime());
+		bookloan.setDueDate(timestamp);
+		
+		
+		
+		Optional<Borrower> foundBorrower = borrow.readBorrowerById(bookloan.getBookLoanKey().getBorrower().getCardNo());
+		if(!foundBorrower.isPresent()) {
+			System.out.println("No Borrow");
+			return new ResponseEntity<BookLoan>(HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		
+		Optional<LibraryBranch> foundBranch = borrow.readLibraryBranchById(bookloan.getBookLoanKey().getBranch().getBranchId());
+		
+		if(!foundBranch.isPresent()) {
+			System.out.println("No lib");
+			return new ResponseEntity<BookLoan>(HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		
+		Optional<Book> foundBook = borrow.readBookById(bookloan.getBookLoanKey().getBook().getBookId());
+		
+		if(!foundBook.isPresent()) {
+			System.out.println("No Bok");
+			return new ResponseEntity<BookLoan>(HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		
+		BookLoanCompositeKey loanKey =  new BookLoanCompositeKey(foundBook.get(),foundBranch.get(), 
+						foundBorrower.get());
+	
 		if(borrow.readBookLoanById(loanKey).isPresent()){
-//double check
+			System.out.println("\n\n\n\n\n");
+			System.out.println("No Loan");
+			System.out.println(loanKey.getBook());
+			System.out.println(loanKey.getBranch());
+			System.out.println(loanKey.getBorrower());
+			System.out.println("\n\n\n\n\n");
 			return new ResponseEntity<BookLoan>(HttpStatus.NOT_FOUND);
 		}
-		BookCopyCompositeKey bookCopyCompositeKey = new BookCopyCompositeKey(bookloan.getBookId(), bookloan.getBranchId());
-		if(!borrow.readBookCopyByBranchId(bookCopyCompositeKey).isPresent())
-			{
-//double check
+		
+		BookCopyCompositeKey bookCopyCompositeKey = new BookCopyCompositeKey(loanKey.getBook(),loanKey.getBranch());
+		
+		if(!borrow.readBookCopyByBranchId(bookCopyCompositeKey).isPresent()) {
+			System.out.println("\n\n\n\n\n");
+			System.out.println("No Copy");
+			System.out.println("\n\n\n\n\n");
 			return new ResponseEntity<BookLoan>(HttpStatus.NOT_FOUND);
 		}
+				
 		int numOfCopies = borrow.readBookCopyByBranchId(bookCopyCompositeKey).get().getNoOfCopies();
+		
 		if(numOfCopies < 1) {
-//double check
+			System.out.println("\n\n\n\n\n");
+			System.out.println("Not enough copies");
+			System.out.println("\n\n\n\n\n");
 			return new ResponseEntity<BookLoan>(HttpStatus.NOT_FOUND);
 		}
 			
-		BookCopy bookCopy = new BookCopy(bookloan.getBookId(), bookloan.getBranchId(), numOfCopies - 1);
+		BookCopy bookCopy = new BookCopy( bookCopyCompositeKey,numOfCopies - 1);
 		borrow.saveBookCopy(bookCopy);
 		
 		return new ResponseEntity<BookLoan>(borrow.saveBookLoan(bookloan),HttpStatus.CREATED);
@@ -78,20 +132,48 @@ public class BorrowerController {
 	@DeleteMapping(value = "/bookloan/{cardNo}/branch/{branchId}/bookId/{bookId}")
 	public ResponseEntity<HttpStatus> deleteBookLoan(@PathVariable Integer cardNo, @PathVariable Integer branchId,@PathVariable Integer bookId)
 	{
-		BookLoanCompositeKey loanKey = new BookLoanCompositeKey(bookId, branchId, cardNo);
-		if(!borrow.readBookLoanById(loanKey).isPresent())
-		{
+		Optional<Borrower> foundBorrower = borrow.readBorrowerById(cardNo);
+		if(!foundBorrower.isPresent()) {
+			System.out.println("No Borrow");
 			return new ResponseEntity<HttpStatus>(HttpStatus.NOT_FOUND);
 		}
 		
-		BookCopyCompositeKey bookCopyCompositeKey = new BookCopyCompositeKey(bookId, branchId);
+		Optional<LibraryBranch> foundBranch = borrow.readLibraryBranchById(branchId);
+		
+		if(!foundBranch.isPresent()) {
+			System.out.println("No lib");
+			return new ResponseEntity<HttpStatus>(HttpStatus.NOT_FOUND);
+		}
+		
+		Optional<Book> foundBook = borrow.readBookById(bookId);
+		
+		if(!foundBook.isPresent()) {
+			System.out.println("No Bok");
+			return new ResponseEntity<HttpStatus>(HttpStatus.NOT_FOUND);
+		}
+		
+		BookLoanCompositeKey loanKey =  new BookLoanCompositeKey(foundBook.get(),foundBranch.get(), 
+						foundBorrower.get());
+		System.out.println("\n\n\n" + loanKey + "\n\n\n");
+		if(!borrow.readBookLoanById(loanKey).isPresent()){
+			System.out.println("No loan");
+			return new ResponseEntity<HttpStatus>(HttpStatus.NOT_FOUND);
+		}
+		
+		BookCopyCompositeKey bookCopyCompositeKey = new BookCopyCompositeKey(loanKey.getBook(),loanKey.getBranch());
+		
+		if(!borrow.readBookCopyByBranchId(bookCopyCompositeKey).isPresent()) {
+			System.out.println("No Copy");
+			return new ResponseEntity<HttpStatus>(HttpStatus.NOT_FOUND);
+		}
+		
 		int numOfCopies = borrow.readBookCopyByBranchId(bookCopyCompositeKey).get().getNoOfCopies();
-		BookCopy bookCopy = new BookCopy(bookId, branchId, numOfCopies + 1);
+		
+		BookCopy bookCopy = new BookCopy( bookCopyCompositeKey,numOfCopies + 1);
 		borrow.saveBookCopy(bookCopy);
 		
-		borrow.deleteBookloan(bookId, branchId, cardNo);
+		borrow.deleteBookloan(loanKey);
 		return new ResponseEntity<HttpStatus>(HttpStatus.NO_CONTENT);
-		
 	}
 	
 	
@@ -113,7 +195,7 @@ public class BorrowerController {
 		
 		result.forEach(ele -> 
 		{
-			if(ele.getCardNo() == cardNo) 
+			if(ele.getBookLoanKey().getBorrower().getCardNo() == cardNo) 
 			{
 				filteredList.add(ele);
 			}
@@ -155,10 +237,12 @@ public class BorrowerController {
 		{
 			if(ele.getNoOfCopies() > 0) 
 			{
-				if(ele.getBranchId() == branchId)
+				if(ele.getBookCopyKey().getBranch().getBranchId() == branchId)
 				filteredList.add(ele);
 			}
 		});
+		System.out.println(filteredList);
+		
 		if(!filteredList.iterator().hasNext()) 
 		{
 			return new ResponseEntity<Iterable<BookCopy>>(HttpStatus.NOT_FOUND);

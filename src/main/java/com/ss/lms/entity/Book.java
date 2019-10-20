@@ -1,43 +1,60 @@
 package com.ss.lms.entity;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_book")
 public class Book implements Serializable
 {
-	private static final long serialVersionUID = 1L;
-	
+	private static final long serialVersionUID = -712925798068921170L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(updatable = false)
+	@Column(name = "bookId", insertable = false, updatable = false, unique = true, nullable = false)
 	private Integer bookId;
+	
+	@Column(name = "title")
 	private String title;
-	private Integer authId; 
-	private Integer pubId; 
 
+	// MANY book authors exist, but only ONE can write a particular book
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "authorId", nullable = false)
+	private Author author;
+
+	// MANY book publishers exist, but only ONE can publish a particular book
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "publisherId", nullable = false)
+	private Publisher publisher;
+
+	// ONE book may be loaned to MANY different borrowers
+	@OneToMany(mappedBy = "bookLoanKey.book")
+	private Collection<BookLoan> givenBooks;
+	
+	// ONE book may be owned by MANY different libraries
+	@OneToMany(mappedBy = "bookCopyKey.book")
+	private Collection<BookCopy> existingCopies;
+	
 	public Book() {}
 
-	public Book(String title, Integer authorId, Integer publisherId)
+	public Book(Integer bookId, String title, Author author, Publisher publisher)
 	{
-		this.title = title;
-		this.authId = authorId;
-		this.pubId = publisherId;
-	}
-	
-	public Book(Integer bookId, String title, Integer authorId, Integer publisherId)
-	{
+		super();
 		this.bookId = bookId;
 		this.title = title;
-		this.authId = authorId;
-		this.pubId = publisherId;
+		this.author = author;
+		this.publisher = publisher;
 	}
 
 	@Override
@@ -45,9 +62,9 @@ public class Book implements Serializable
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((authId == null) ? 0 : authId.hashCode());
+		result = prime * result + ((author == null) ? 0 : author.hashCode());
 		result = prime * result + ((bookId == null) ? 0 : bookId.hashCode());
-		result = prime * result + ((pubId == null) ? 0 : pubId.hashCode());
+		result = prime * result + ((publisher == null) ? 0 : publisher.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		return result;
 	}
@@ -56,66 +73,43 @@ public class Book implements Serializable
 	public boolean equals(Object obj)
 	{
 		if (this == obj)
-		{
 			return true;
-		}
 		if (obj == null)
-		{
 			return false;
-		}
 		if (getClass() != obj.getClass())
-		{
 			return false;
-		}
 		Book other = (Book) obj;
-		if (authId == null)
+		if (author == null)
 		{
-			if (other.authId != null)
-			{
+			if (other.author != null)
 				return false;
-			}
-		} else if (!authId.equals(other.authId))
-		{
+		} else if (!author.equals(other.author))
 			return false;
-		}
 		if (bookId == null)
 		{
 			if (other.bookId != null)
-			{
 				return false;
-			}
 		} else if (!bookId.equals(other.bookId))
-		{
 			return false;
-		}
-		if (pubId == null)
+		if (publisher == null)
 		{
-			if (other.pubId != null)
-			{
+			if (other.publisher != null)
 				return false;
-			}
-		} else if (!pubId.equals(other.pubId))
-		{
+		} else if (!publisher.equals(other.publisher))
 			return false;
-		}
 		if (title == null)
 		{
 			if (other.title != null)
-			{
 				return false;
-			}
 		} else if (!title.equals(other.title))
-		{
 			return false;
-		}
 		return true;
 	}
 
 	@Override
 	public String toString()
 	{
-		return "Book [bookId=" + bookId + ", title=" + title + ", authorId=" + authId + ", publisherId=" + pubId
-				+ "]";
+		return "Book [bookId=" + bookId + ", title=" + title + ", author=" + author + ", publisher=" + publisher + "]";
 	}
 
 	public Integer getBookId()
@@ -138,25 +132,23 @@ public class Book implements Serializable
 		this.title = title;
 	}
 
-	public Integer getAuthorId()
+	public Author getAuthor()
 	{
-		return authId;
+		return author;
 	}
 
-	public void setAuthorId(Integer authorId)
+	public void setAuthor(Author author)
 	{
-		this.authId = authorId;
+		this.author = author;
 	}
 
-	public Integer getPublisherId()
+	public Publisher getPublisher()
 	{
-		return pubId;
+		return publisher;
 	}
 
-	public void setPublisherId(Integer publisherId)
+	public void setPublisher(Publisher publisher)
 	{
-		this.pubId = publisherId;
+		this.publisher = publisher;
 	}
-	
-	
 }

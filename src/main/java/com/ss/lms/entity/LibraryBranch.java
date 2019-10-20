@@ -1,15 +1,18 @@
 package com.ss.lms.entity;
 
 import java.io.Serializable;
+import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-@Entity(name = "tbl_library_branch")
+@Entity
 @Table(name = "tbl_library_branch")
 public class LibraryBranch implements Serializable
 {
@@ -17,18 +20,24 @@ public class LibraryBranch implements Serializable
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(updatable = false)
+	@Column(name = "branchId", updatable = false)
 	private Integer branchId;
+	
+	@Column(name = "branchName")
 	private String branchName;
+	
+	@Column(name = "branchAddress")
 	private String branchAddress;
 
+	// ONE branch may loan MANY books
+	@OneToMany(mappedBy = "bookLoanKey.branch")
+	private Collection<BookLoan> loanedBooks;
+	
+	// ONE branch may own MANY books
+	@OneToMany(mappedBy = "bookCopyKey.branch")
+	private Collection<BookCopy> bookCopies;
+	
 	public LibraryBranch(){}
-
-	public LibraryBranch(String branchName, String branchAddress)
-	{
-		this.branchName = branchName;
-		this.branchAddress = branchAddress;
-	}
 	
 	public LibraryBranch(Integer branchId, String branchName, String branchAddress)
 	{

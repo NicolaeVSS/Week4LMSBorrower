@@ -2,12 +2,15 @@
 package com.ss.lms.entity;
 
 import java.io.Serializable;
+import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity 
@@ -18,17 +21,17 @@ public class Author implements Serializable
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(updatable = false)
+	@Column(name = "authorId", insertable = false, updatable = false, unique = true, nullable = false)
 	private Integer authorId;
+	
+	@Column(name = "authorName")
 	private String authorName;
+	
+	// ONE author WRITES many books
+	@OneToMany(mappedBy = "author")
+	private Collection<Book> authorBooks;
 
 	public Author(){}
-
-
-	public Author(String authorName)
-	{
-		this.authorName = authorName;
-	}
 	
 	public Author(Integer authorId, String authorName)
 	{

@@ -2,33 +2,43 @@ package com.ss.lms.entity;
 
 import java.io.Serializable;
 
-import javax.persistence.IdClass;
+import javax.persistence.Embeddable;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
+@Embeddable
 public class BookCopyCompositeKey implements Serializable
 {
-	private static final long serialVersionUID = 7453106781264031549L;
-	
-	private Integer bookId;
-	private Integer branchId;
-	
+	private static final long serialVersionUID = 3189581310335082008L;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "bookId", nullable = false)
+	private Book book;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "branchId", nullable = false)
+	private LibraryBranch branch;
+
 	public BookCopyCompositeKey() {}
 	
-	public BookCopyCompositeKey(Integer bookid, Integer branchId)
+	public BookCopyCompositeKey(Book book, LibraryBranch branch)
 	{
 		super();
-		this.bookId = bookid;
-		this.branchId = branchId;
+		this.book = book;
+		this.branch = branch;
 	}
-	
+
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((bookId == null) ? 0 : bookId.hashCode());
-		result = prime * result + ((branchId == null) ? 0 : branchId.hashCode());
+		result = prime * result + ((book == null) ? 0 : book.hashCode());
+		result = prime * result + ((branch == null) ? 0 : branch.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -39,43 +49,44 @@ public class BookCopyCompositeKey implements Serializable
 		if (getClass() != obj.getClass())
 			return false;
 		BookCopyCompositeKey other = (BookCopyCompositeKey) obj;
-		if (bookId == null)
+		if (book == null)
 		{
-			if (other.bookId != null)
+			if (other.book != null)
 				return false;
-		} else if (!bookId.equals(other.bookId))
+		} else if (!book.equals(other.book))
 			return false;
-		if (branchId == null)
+		if (branch == null)
 		{
-			if (other.branchId != null)
+			if (other.branch != null)
 				return false;
-		} else if (!branchId.equals(other.branchId))
+		} else if (!branch.equals(other.branch))
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		return "BookCopyCompositeKey [bookid=" + bookId + ", branchId=" + branchId + "]";
+		return "BookCopyCompositeKey [book=" + book + ", branch=" + branch + "]";
 	}
-	
-	public Integer getBookid()
+
+	public Book getBook()
 	{
-		return bookId;
+		return book;
 	}
-	public void setBookid(Integer bookid)
+
+	public void setBook(Book book)
 	{
-		this.bookId = bookid;
+		this.book = book;
 	}
-	public Integer getBranchId()
+
+	public LibraryBranch getBranch()
 	{
-		return branchId;
+		return branch;
 	}
-	public void setBranchId(Integer branchId)
+
+	public void setBranch(LibraryBranch branch)
 	{
-		this.branchId = branchId;
+		this.branch = branch;
 	}
-	
-	
 }

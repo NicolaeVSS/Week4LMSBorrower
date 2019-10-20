@@ -4,9 +4,11 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.ss.lms.dao.BookCopyDataAccess;
+import com.ss.lms.dao.BookDataAccess;
 import com.ss.lms.dao.BookLoanDataAccess;
 import com.ss.lms.dao.BorrowerDataAccess;
 import com.ss.lms.dao.LibraryBranchDataAccess;
+import com.ss.lms.entity.Book;
 import com.ss.lms.entity.BookCopy;
 import com.ss.lms.entity.BookCopyCompositeKey;
 import com.ss.lms.entity.BookLoan;
@@ -26,6 +28,8 @@ public class BorrowerService {
 	private BookLoanDataAccess bookLoanDao;
 	@Autowired
 	private BookCopyDataAccess bookCopyDao;
+	@Autowired
+	private BookDataAccess bookDao;
 	
 	/*************************************************
 	 * 
@@ -63,6 +67,11 @@ public class BorrowerService {
 		return libraryBranchDao.findAll();
 	}
 	
+    public Optional<Book> readBookById(Integer bookId)
+    {
+        return bookDao.findById(bookId);
+    }
+	
 	public Optional<Borrower> readBorrowerById(Integer cardNo){
 		return borrowerDao.findById(cardNo);
 	}
@@ -95,8 +104,8 @@ public class BorrowerService {
 	 *************************************************/
 
 	
-	public void deleteBookloan(Integer bookId, Integer branchId, Integer cardNo) {
-		bookLoanDao.deleteById(new BookLoanCompositeKey(bookId,branchId,cardNo));
+	public void deleteBookloan(BookLoanCompositeKey bookLoanCompositeKey) {
+		bookLoanDao.deleteById(bookLoanCompositeKey);
 	}
 
 }

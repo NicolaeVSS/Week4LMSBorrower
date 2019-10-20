@@ -1,7 +1,8 @@
 package com.ss.lms.entity;
-
 import java.io.Serializable;
 
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -9,23 +10,22 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_book_copies")
-@IdClass(BookCopyCompositeKey.class)
-public class BookCopy implements Serializable
+public class BookCopy implements Serializable 
 {
-	private static final long serialVersionUID = -7441409147455698231L;
+    private static final long serialVersionUID = -7441409147455698231L;
 
-	@Id
-	private Integer bookId;
-	@Id
-	private Integer branchId;
+    @EmbeddedId
+    private BookCopyCompositeKey bookCopyKey;
+    
+    @Column(name = "noOfCopies")
 	private Integer noOfCopies;
+    
+    public BookCopy() {}
 
-	public BookCopy(){}
-
-	public BookCopy(Integer bookId, Integer branchId, Integer noOfCopies)
+	public BookCopy(BookCopyCompositeKey bookCopyKey, Integer noOfCopies)
 	{
-		this.bookId = bookId;
-		this.branchId = branchId;
+		super();
+		this.bookCopyKey = bookCopyKey;
 		this.noOfCopies = noOfCopies;
 	}
 
@@ -34,8 +34,7 @@ public class BookCopy implements Serializable
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((bookId == null) ? 0 : bookId.hashCode());
-		result = prime * result + ((branchId == null) ? 0 : branchId.hashCode());
+		result = prime * result + ((bookCopyKey == null) ? 0 : bookCopyKey.hashCode());
 		result = prime * result + ((noOfCopies == null) ? 0 : noOfCopies.hashCode());
 		return result;
 	}
@@ -50,17 +49,11 @@ public class BookCopy implements Serializable
 		if (getClass() != obj.getClass())
 			return false;
 		BookCopy other = (BookCopy) obj;
-		if (bookId == null)
+		if (bookCopyKey == null)
 		{
-			if (other.bookId != null)
+			if (other.bookCopyKey != null)
 				return false;
-		} else if (!bookId.equals(other.bookId))
-			return false;
-		if (branchId == null)
-		{
-			if (other.branchId != null)
-				return false;
-		} else if (!branchId.equals(other.branchId))
+		} else if (!bookCopyKey.equals(other.bookCopyKey))
 			return false;
 		if (noOfCopies == null)
 		{
@@ -74,27 +67,17 @@ public class BookCopy implements Serializable
 	@Override
 	public String toString()
 	{
-		return "BookCopy [bookid=" + bookId + ", branchId=" + branchId + ", noOfCopies=" + noOfCopies + "]";
+		return "BookCopy [bookCopyKey=" + bookCopyKey + ", noOfCopies=" + noOfCopies + "]";
 	}
 
-	public Integer getBookid()
+	public BookCopyCompositeKey getBookCopyKey()
 	{
-		return bookId;
+		return bookCopyKey;
 	}
 
-	public void setBookid(Integer bookid)
+	public void setBookCopyKey(BookCopyCompositeKey bookCopyKey)
 	{
-		this.bookId = bookid;
-	}
-
-	public Integer getBranchId()
-	{
-		return branchId;
-	}
-
-	public void setBranchId(Integer branchId)
-	{
-		this.branchId = branchId;
+		this.bookCopyKey = bookCopyKey;
 	}
 
 	public Integer getNoOfCopies()

@@ -1,12 +1,15 @@
 package com.ss.lms.entity;
 
 import java.io.Serializable;
+import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -17,20 +20,23 @@ public class Publisher implements Serializable
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(updatable = false)
+	@Column(name = "publisherId", insertable = false, updatable = false, unique = true, nullable = false)
 	private Integer publisherId;
+	
+	@Column(name = "publisherName")
 	private String publisherName;
+	
+	@Column(name = "publisherAddress")
 	private String publisherAddress;
+	
+	@Column(name = "publisherPhone")
 	private String publisherPhone;
 
+	// ONE publisher publishes MANY books
+	@OneToMany(mappedBy = "publisher")
+	private Collection<Book> publisherBooks;
+	
 	public Publisher(){}
-
-	public Publisher(String publisherName, String publisherAddress, String publisherPhone)
-	{
-		this.publisherName = publisherName;
-		this.publisherAddress = publisherAddress;
-		this.publisherPhone = publisherPhone;
-	}
 	
 	public Publisher(Integer publisherId, String publisherName, String publisherAddress, String publisherPhone)
 	{
