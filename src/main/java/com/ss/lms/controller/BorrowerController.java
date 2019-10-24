@@ -36,12 +36,6 @@ public class BorrowerController {
 	@Autowired
 	BorrowerService borrow;
 	
-	/************************************************
-	 *												* 
-	 *           CREATE OPERATION					*
-	 * 												*
-	 ************************************************/
-	
 	@PostMapping(path = "/bookloan",  produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE},
 					consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity<BookLoan> createBookLoan(@RequestBody BookLoan bookloan){
@@ -50,9 +44,6 @@ public class BorrowerController {
 		Calendar duetime = Calendar.getInstance();
 		
 		if(bookloan.getBookLoanKey() == null || bookloan.getDateOut() != null || bookloan.getDueDate() != null) {
-			System.out.println("\n\n\n\n\n");
-			System.out.println();
-			System.out.println("\n\n\n\n\n");
 			return new ResponseEntity<BookLoan>(HttpStatus.BAD_REQUEST);
 		}
 		bookloan.setDateOut(timestamp);
@@ -64,21 +55,18 @@ public class BorrowerController {
 		
 		Optional<Borrower> foundBorrower = borrow.readBorrowerById(bookloan.getBookLoanKey().getBorrower().getCardNo());
 		if(!foundBorrower.isPresent()) {
-			System.out.println("No Borrow");
 			return new ResponseEntity<BookLoan>(HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		Optional<LibraryBranch> foundBranch = borrow.readLibraryBranchById(bookloan.getBookLoanKey().getBranch().getBranchId());
 		
 		if(!foundBranch.isPresent()) {
-			System.out.println("No lib");
 			return new ResponseEntity<BookLoan>(HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		Optional<Book> foundBook = borrow.readBookById(bookloan.getBookLoanKey().getBook().getBookId());
 		
 		if(!foundBook.isPresent()) {
-			System.out.println("No Bok");
 			return new ResponseEntity<BookLoan>(HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
@@ -86,30 +74,18 @@ public class BorrowerController {
 						foundBorrower.get());
 	
 		if(borrow.readBookLoanById(loanKey).isPresent()){
-			System.out.println("\n\n\n\n\n");
-			System.out.println("No Loan");
-			System.out.println(loanKey.getBook());
-			System.out.println(loanKey.getBranch());
-			System.out.println(loanKey.getBorrower());
-			System.out.println("\n\n\n\n\n");
 			return new ResponseEntity<BookLoan>(HttpStatus.NOT_FOUND);
 		}
 		
 		BookCopyCompositeKey bookCopyCompositeKey = new BookCopyCompositeKey(loanKey.getBook(),loanKey.getBranch());
 		
 		if(!borrow.readBookCopyByBranchId(bookCopyCompositeKey).isPresent()) {
-			System.out.println("\n\n\n\n\n");
-			System.out.println("No Copy");
-			System.out.println("\n\n\n\n\n");
 			return new ResponseEntity<BookLoan>(HttpStatus.NOT_FOUND);
 		}
 				
 		int numOfCopies = borrow.readBookCopyByBranchId(bookCopyCompositeKey).get().getNoOfCopies();
 		
 		if(numOfCopies < 1) {
-			System.out.println("\n\n\n\n\n");
-			System.out.println("Not enough copies");
-			System.out.println("\n\n\n\n\n");
 			return new ResponseEntity<BookLoan>(HttpStatus.NOT_FOUND);
 		}
 			
@@ -121,12 +97,6 @@ public class BorrowerController {
 	}
 	
 	
-	/************************************************
-	 *												* 
-	 *           Remove OPERATION					*
-	 * 												*
-	 ************************************************/
-	
 	
 	
 	@DeleteMapping(value = "/bookloan/{cardNo}/branch/{branchId}/bookId/{bookId}")
@@ -134,36 +104,30 @@ public class BorrowerController {
 	{
 		Optional<Borrower> foundBorrower = borrow.readBorrowerById(cardNo);
 		if(!foundBorrower.isPresent()) {
-			System.out.println("No Borrow");
 			return new ResponseEntity<HttpStatus>(HttpStatus.NOT_FOUND);
 		}
 		
 		Optional<LibraryBranch> foundBranch = borrow.readLibraryBranchById(branchId);
 		
 		if(!foundBranch.isPresent()) {
-			System.out.println("No lib");
 			return new ResponseEntity<HttpStatus>(HttpStatus.NOT_FOUND);
 		}
 		
 		Optional<Book> foundBook = borrow.readBookById(bookId);
 		
 		if(!foundBook.isPresent()) {
-			System.out.println("No Bok");
 			return new ResponseEntity<HttpStatus>(HttpStatus.NOT_FOUND);
 		}
 		
 		BookLoanCompositeKey loanKey =  new BookLoanCompositeKey(foundBook.get(),foundBranch.get(), 
 						foundBorrower.get());
-		System.out.println("\n\n\n" + loanKey + "\n\n\n");
 		if(!borrow.readBookLoanById(loanKey).isPresent()){
-			System.out.println("No loan");
 			return new ResponseEntity<HttpStatus>(HttpStatus.NOT_FOUND);
 		}
 		
 		BookCopyCompositeKey bookCopyCompositeKey = new BookCopyCompositeKey(loanKey.getBook(),loanKey.getBranch());
 		
 		if(!borrow.readBookCopyByBranchId(bookCopyCompositeKey).isPresent()) {
-			System.out.println("No Copy");
 			return new ResponseEntity<HttpStatus>(HttpStatus.NOT_FOUND);
 		}
 		
@@ -177,12 +141,6 @@ public class BorrowerController {
 	}
 	
 	
-	
-	/************************************************
-	 *												* 
-	 *           Read OPERATION						*
-	 * 												*
-	 ************************************************/
 	
 	
 	@GetMapping(value = "/bookloan/{cardNo}", produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
@@ -241,7 +199,6 @@ public class BorrowerController {
 				filteredList.add(ele);
 			}
 		});
-		System.out.println(filteredList);
 		
 		if(!filteredList.iterator().hasNext()) 
 		{

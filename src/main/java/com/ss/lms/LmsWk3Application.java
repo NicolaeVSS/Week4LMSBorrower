@@ -9,7 +9,6 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 public class LmsWk3Application {
 
 	public static void main(String[] args) {
-		System.out.println("it wi");
 		SpringApplication.run(LmsWk3Application.class, args);
 		
 	}

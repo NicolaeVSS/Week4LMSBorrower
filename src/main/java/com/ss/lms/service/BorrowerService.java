@@ -31,12 +31,6 @@ public class BorrowerService {
 	@Autowired
 	private BookDataAccess bookDao;
 	
-	/*************************************************
-	 * 
-	 * ALL CREATE AND UPDATE OPERATIONS
-	 * 
-	 *************************************************/
-
 	public Borrower saveBorrower(Borrower borrower)
 	{
 		return borrowerDao.save(borrower);
@@ -52,12 +46,6 @@ public class BorrowerService {
 	}
 	
 	
-	/*************************************************
-	 * 
-	 * ALL READ OPERATIONS
-	 * 
-	 *************************************************/
-
 
 	public Optional<LibraryBranch> readLibraryBranchById(Integer branchId){
 		return libraryBranchDao.findById(branchId);
@@ -97,11 +85,6 @@ public class BorrowerService {
 		return bookCopyDao.findAll();
 	}
 	
-	/*************************************************
-	 * 
-	 * ALL DELETE OPERATIONS
-	 * 
-	 *************************************************/
 
 	
 	public void deleteBookloan(BookLoanCompositeKey bookLoanCompositeKey) {
