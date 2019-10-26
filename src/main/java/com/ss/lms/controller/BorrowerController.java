@@ -35,7 +35,11 @@ public class BorrowerController {
 
 	@Autowired
 	BorrowerService borrow;
-	
+    @GetMapping("")
+  public HttpStatus serverUp()
+    {
+        return HttpStatus.OK;
+    }
 	@PostMapping(path = "/bookloan",  produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE},
 					consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity<BookLoan> createBookLoan(@RequestBody BookLoan bookloan){
