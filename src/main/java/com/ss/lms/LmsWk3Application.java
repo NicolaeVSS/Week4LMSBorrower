@@ -7,7 +7,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 @SpringBootApplication
 @EnableEurekaClient
 public class LmsWk3Application {
-	//testing webhook #4
+	//testing webhook #5
 	public static void main(String[] args) {
 		SpringApplication.run(LmsWk3Application.class, args);
 		
