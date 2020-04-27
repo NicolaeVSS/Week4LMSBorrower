@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,10 +28,23 @@ import com.ss.lms.entity.BookLoanCompositeKey;
 import com.ss.lms.entity.Borrower;
 import com.ss.lms.entity.LibraryBranch;
 import com.ss.lms.service.BorrowerService;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+// @CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping(value = "/lms/borrower")
 public class BorrowerController {
+
+//	public WebMvcConfigurer corsConfigurer() {
+//		return new WebMvcConfigurer() {
+//			@Override
+//			public void addCorsMappings(CorsRegistry registry) {
+//				registry.addMapping("/**").allowedOrigins("http://localhost:4200");
+//			}
+//		};
+//	}
 
 	@Autowired
 	BorrowerService borrow;
