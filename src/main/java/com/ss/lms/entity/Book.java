@@ -30,12 +30,12 @@ public class Book implements Serializable
 
 	// MANY book authors exist, but only ONE can write a particular book
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "authId", nullable = false)
+	@JoinColumn(name = "authorId", nullable = false)
 	private Author author;
 
 	// MANY book publishers exist, but only ONE can publish a particular book
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "pubId", nullable = false)
+	@JoinColumn(name = "publisherId", nullable = false)
 	private Publisher publisher;
 
 	// ONE book may be loaned to MANY different borrowers
